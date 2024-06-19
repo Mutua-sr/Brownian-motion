@@ -1,41 +1,58 @@
 
-let num = 2000;
-let range = 6;
+const canvas = document.getElementById('brownianCanvas');
+const ctx = canvas.getContext('2d');
 
-let ax = [];
-let ay = [];
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
+const particles = [];
+const numParticles = 100; // Number of particles
+const maxSpeed = 2; // Maximum speed of particles
 
-function setup() {
-  createCanvas(1920, 1080);
-  for ( let i = 0; i < num; i++ ) {
-    ax[i] = width / 2;
-    ay[i] = height / 2;
-  }
-  frameRate(30);
+class Particle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.vx = Math.random() * maxSpeed * 2 - maxSpeed;
+        this.vy = Math.random() * maxSpeed * 2 - maxSpeed;
+        this.radius = 2;
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // Bounce off the walls
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.fill();
+        ctx.closePath();
+    }
 }
 
-function draw() {
-  background(51);
-
-  // Shift all elements 1 place to the left
-  for ( let i = 1; i < num; i++ ) {
-    ax[i - 1] = ax[i];
-    ay[i - 1] = ay[i];
-  }
-
-  // Put a new value at the end of the array
-  ax[num - 1] += random(-range, range);
-  ay[num - 1] += random(-range, range);
-
-  // Constrain all points to the screen
-  ax[num - 1] = constrain(ax[num - 1], 0, width);
-  ay[num - 1] = constrain(ay[num - 1], 0, height);
-
-  // Draw a line connecting the points
-  for ( let j = 1; j < num; j++ ) {
-    let val = j / num * 204.0 + 51;
-    stroke(val);
-    line(ax[j - 1], ay[j - 1], ax[j], ay[j]);
-  }
+// Initialize particles
+for (let i = 0; i < numParticles; i++) {
+    const x = Math.random() * canvas.width;
+    const y = Math.random() * canvas.height;
+    particles.push(new Particle(x, y));
 }
+
+// Animation loop
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+    });
+
+    requestAnimationFrame(animate);
+}
+
+animate();
