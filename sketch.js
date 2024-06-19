@@ -1,4 +1,4 @@
-
+//sketch.js
 const canvas = document.getElementById('brownianCanvas');
 const ctx = canvas.getContext('2d');
 
